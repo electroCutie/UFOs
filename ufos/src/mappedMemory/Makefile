@@ -2,9 +2,11 @@
 #CC=gcc
 UFO_KEY = -D__UFOs_CoreDev__
 PKG_LIBS = -pthread
-OBJ = sparseList.o userfaultCore.o userfaultGettersSetters.o
-CFLAGS = -O0 -ggdb -Wall -Werror -fPIC
+OBJ = sparseList.o userfaultCore.o userfaultGettersSetters.o oroboros.o
+#CFLAGS = -fpic -g -O2 -Wall -Werror
+CFLAGS = -Og -ggdb -Wall -Werror -fPIC
 LIB = libmappedMemory.a
+LIBS = -lcrypto
 
 all: $(LIB) strideTest sparseListTest userfaultSpeedTest ufoTest
 
@@ -17,7 +19,7 @@ clean:
 	$(RM) *.a
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(UFO_KEY) -c -o $@ $<
+	$(CC) $(CFLAGS) $(UFO_KEY) -c -o $@ $< $(LIBS)
 
 $(LIB): $(OBJ)
 	$(AR) -rcs $@ $^
@@ -29,7 +31,7 @@ sparseListTest: sparseListTest.o sparseList.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 userfaultSpeedTest: userfaultSpeed.o $(OBJ)
-	$(CC) $(CFLAGS) $(PKG_LIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(PKG_LIBS) -o $@ $^ $(LIBS)
 
 ufoTest: ufoTest.o $(OBJ)
-	$(CC) $(CFLAGS) $(PKG_LIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(PKG_LIBS) -o $@ $^ $(LIBS)

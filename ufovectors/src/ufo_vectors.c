@@ -7,7 +7,7 @@
 #include "ufo_metadata.h"
 #include "helpers.h"
 #include "debug.h"
-#include "ufo_file_manipulation.h"
+#include "bin/io.h"
 
 #include "../include/mappedMemory/userfaultCore.h"
 
@@ -35,13 +35,11 @@ size_t __get_ufo_element_size(ufo_vector_type_t vector_type) {
             return sizeof(Rcomplex);
         case UFO_RAW:
             return sizeof(Rbyte);
+        case UFO_STR:
+            return sizeof(SEXP/*STRSXP*/);
         default:
             Rf_error("Unrecognized vector type: %d\n", vector_type);
     }
-}
-
-void __check_file_path_or_die(const char * path) {
-
 }
 
 void __destroy(ufUserData *user_data) {
@@ -58,14 +56,9 @@ void __destroy(ufUserData *user_data) {
     free(data);
 }
 
-int32_t __1MB_of_elements(size_t element_size) {
-    assert (element_size < 1 << 24);
-    assert (element_size > 0);
-    return (1024 * 1024) / ((int32_t) element_size);
-}
+
 
 ufo_source_t* __make_source_or_die(ufo_vector_type_t type, const char *path, int *dimensions, size_t dimensions_length, int32_t min_load_count) {
-    __check_file_path_or_die(path);
 
     ufo_file_source_data_t *data = (ufo_file_source_data_t*) malloc(sizeof(ufo_file_source_data_t));
 
